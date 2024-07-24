@@ -1,0 +1,155 @@
+// Universidad del Valle
+// Digital 2
+// Ana y Dayrin
+// Contador de décadas y contador binario con leds
+
+// Librerías
+#include <Arduino.h>
+
+// Variables globales
+#define Led_1 27
+#define Led_2 14
+#define Led_3 12
+#define Led_4 13
+#define Modo 2
+#define Mas 4
+#define Menos 5
+uint8_t b1_state = 0;
+uint8_t last_b1_state = 0;
+uint8_t b2_state = 0;
+uint8_t last_b2_state = 0;
+uint8_t count = 0;
+uint8_t count2 = 0;
+
+// Prototipos de funciones
+int modo(int);
+
+// Función de configuración
+void setup() {
+  pinMode(Led_1, OUTPUT);
+  pinMode(Led_2, OUTPUT);
+  pinMode(Led_3, OUTPUT);
+  pinMode(Led_4, OUTPUT);
+  digitalWrite(Led_1,LOW);
+  digitalWrite(Led_2,LOW);
+  digitalWrite(Led_3,LOW);
+  pinMode(Modo,INPUT_PULLDOWN);
+  pinMode(Mas,INPUT_PULLUP);
+  pinMode(Menos,INPUT);
+}
+
+// Loop principal
+void loop() {
+
+  // Lee el botón de modo. O es decena, 1 es binario
+  int m = modo(digitalRead(Modo));
+  
+  // Si está en modo decena
+  if (m==0) {
+    // Lee el botón más - incrementa la cuenta
+    b1_state = digitalRead(Mas);
+    // Verificar si el botón ha cambiado de estado
+    if (b1_state != last_b1_state) {
+        // Verificar si el botón ha sido presionado 
+        if (b1_state == 0) {
+          // Mostrar el valor actual en las leds
+          if (count == 0) {
+            digitalWrite(Led_1,LOW);
+            digitalWrite(Led_2,LOW);
+            digitalWrite(Led_3,LOW);
+            digitalWrite(Led_4,LOW);
+          }
+          if (count == 1) {
+            digitalWrite(Led_1,HIGH);
+            digitalWrite(Led_2,LOW);
+            digitalWrite(Led_3,LOW);
+            digitalWrite(Led_4,LOW);
+          }
+          if (count == 2) {
+            digitalWrite(Led_1,LOW);
+            digitalWrite(Led_2,HIGH);
+            digitalWrite(Led_3,LOW);
+            digitalWrite(Led_4,LOW);
+          }
+          if (count == 3) {
+            digitalWrite(Led_1,LOW);
+            digitalWrite(Led_2,LOW);
+            digitalWrite(Led_3,LOW);
+            digitalWrite(Led_4,LOW);
+          }
+          // Incrementar el contador y reiniciar a 0 si está en F = 15
+          if (count == 4) {
+            digitalWrite(Led_1,LOW);
+            digitalWrite(Led_2,LOW);
+            digitalWrite(Led_3,LOW);
+            digitalWrite(Led_4,HIGH);
+            count = 0;
+          } else {
+            count++;
+          }
+        }
+          // Esperar un momento para evitar el rebote del botón
+      delay(200);
+        last_b1_state = b1_state;
+        } 
+
+    // Botón menos - disminuye
+    b2_state = digitalRead(Menos);
+    // Verificar si el botón ha cambiado de estado
+    if (b2_state != last_b2_state) {
+        // Verificar si el botón ha sido presionado 
+        if (b2_state == 1) {
+          // Mostrar el valor actual en el display
+          if (count2 == 1) {
+            digitalWrite(Led_1,HIGH);
+            digitalWrite(Led_2,LOW);
+            digitalWrite(Led_3,LOW);
+            digitalWrite(Led_4,LOW);
+          }
+          if (count2 == 2) {
+            digitalWrite(Led_1,LOW);
+            digitalWrite(Led_2,HIGH);
+            digitalWrite(Led_3,LOW);
+            digitalWrite(Led_4,LOW);
+          }
+          if (count2 == 3) {
+            digitalWrite(Led_1,LOW);
+            digitalWrite(Led_2,LOW);
+            digitalWrite(Led_3,LOW);
+            digitalWrite(Led_4,LOW);
+          }
+        
+          if (count2 == 4) {
+            digitalWrite(Led_1,LOW);
+            digitalWrite(Led_2,LOW);
+            digitalWrite(Led_3,LOW);
+            digitalWrite(Led_4,HIGH);
+          }
+
+          // Disminuir el contador y reiniciar a 4
+          if (count2 == 0) {
+            digitalWrite(Led_1,LOW);
+            digitalWrite(Led_2,LOW);
+            digitalWrite(Led_3,LOW);
+            digitalWrite(Led_4,LOW);
+            count2 = 4;
+          } else {
+            count2--;
+          }
+        }
+        // Esperar un momento para evitar el rebote del botón
+        delay(200);
+        last_b2_state = b2_state;
+    }   
+  }
+}
+
+// put function definitions here:
+int modo(int x) {
+  if (x == 0) {
+    return 0;
+  }
+  else {
+    return 1;
+  }
+}
