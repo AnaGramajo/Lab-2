@@ -23,6 +23,7 @@ uint8_t count2 = 0;
 
 // Prototipos de funciones
 int modo(int);
+void mostrarBinario(uint8_t numero);
 
 // Función de configuración
 void setup() {
@@ -143,13 +144,43 @@ void loop() {
     }   
   }
 }
+} else { // Modo binario
+    // Lee el botón más - incrementa la cuenta
+    b1_state = digitalRead(Mas);
+    if (b1_state != last_b1_state) {
+      if (b1_state == 0) {
+        count = (count + 1) % 16; // Incrementa y vuelve a 0 después de 15
+        mostrarBinario(count);
+        delay(200);
+      }
+      last_b1_state = b1_state;
+    }
 
-// put function definitions here:
+    // Botón menos - disminuye
+    b2_state = digitalRead(Menos);
+    if (b2_state != last_b2_state) {
+      if (b2_state == 1) {
+        count = (count - 1) % 16; // Decrementa y vuelve a 15 después de 0
+        mostrarBinario(count);
+        delay(200);
+      }
+      last_b2_state = b2_state;
+    }
+  }
+}
+
+void mostrarBinario(uint8_t numero) {
+  digitalWrite(Led_1, numero & 0x01);
+  digitalWrite(Led_2, (numero >> 1) & 0x01);
+  digitalWrite(Led_3, (numero >> 2) & 0x01);
+  digitalWrite(Led_4, (numero >> 3) & 0x01);
+}
+
+// Función para determinar el modo
 int modo(int x) {
   if (x == 0) {
     return 0;
-  }
-  else {
+  } else {
     return 1;
   }
 }
