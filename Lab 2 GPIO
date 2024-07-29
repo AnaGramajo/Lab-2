@@ -7,19 +7,19 @@
 #include <Arduino.h>
 
 // Variables globales
-#define Led_1 27
-#define Led_2 14
-#define Led_3 12
-#define Led_4 13
-#define Modo 2
-#define Mas 4
-#define Menos 5
-uint8_t b1_state = 0;
-uint8_t last_b1_state = 0;
+#define Led_1 23
+#define Led_2 22
+#define Led_3 21
+#define Led_4 19
+#define Modo 4
+#define Mas 5
+#define Menos 15
+uint8_t b1_state = 1;
+uint8_t last_b1_state = 1;
 uint8_t b2_state = 0;
 uint8_t last_b2_state = 0;
-uint8_t count = 0;
-uint8_t count2 = 0;
+uint8_t count = 1;
+uint8_t count2 = 4;
 
 // Prototipos de funciones
 int modo(int);
@@ -59,24 +59,28 @@ void loop() {
             digitalWrite(Led_2,LOW);
             digitalWrite(Led_3,LOW);
             digitalWrite(Led_4,LOW);
+            count2 = count+4;
           }
           if (count == 1) {
             digitalWrite(Led_1,HIGH);
             digitalWrite(Led_2,LOW);
             digitalWrite(Led_3,LOW);
             digitalWrite(Led_4,LOW);
+            count2 = count-1;
           }
           if (count == 2) {
             digitalWrite(Led_1,LOW);
             digitalWrite(Led_2,HIGH);
             digitalWrite(Led_3,LOW);
             digitalWrite(Led_4,LOW);
+            count2 = count-1;
           }
           if (count == 3) {
             digitalWrite(Led_1,LOW);
             digitalWrite(Led_2,LOW);
-            digitalWrite(Led_3,LOW);
+            digitalWrite(Led_3,HIGH);
             digitalWrite(Led_4,LOW);
+            count2 = count-1;
           }
           // Incrementar el contador y reiniciar a 0 si está en F = 15
           if (count == 4) {
@@ -85,14 +89,15 @@ void loop() {
             digitalWrite(Led_3,LOW);
             digitalWrite(Led_4,HIGH);
             count = 0;
+            count2 = count-1;
           } else {
             count++;
           }
         }
-          // Esperar un momento para evitar el rebote del botón
-      delay(200);
+        // Esperar un momento para evitar el rebote del botón
+        delay(200);
         last_b1_state = b1_state;
-        } 
+    } 
 
     // Botón menos - disminuye
     b2_state = digitalRead(Menos);
@@ -106,18 +111,21 @@ void loop() {
             digitalWrite(Led_2,LOW);
             digitalWrite(Led_3,LOW);
             digitalWrite(Led_4,LOW);
+            count = count2+1;
           }
           if (count2 == 2) {
             digitalWrite(Led_1,LOW);
             digitalWrite(Led_2,HIGH);
             digitalWrite(Led_3,LOW);
             digitalWrite(Led_4,LOW);
+            count = count2+1;
           }
           if (count2 == 3) {
             digitalWrite(Led_1,LOW);
             digitalWrite(Led_2,LOW);
-            digitalWrite(Led_3,LOW);
+            digitalWrite(Led_3,HIGH);
             digitalWrite(Led_4,LOW);
+            count = count2+1;
           }
         
           if (count2 == 4) {
@@ -125,6 +133,7 @@ void loop() {
             digitalWrite(Led_2,LOW);
             digitalWrite(Led_3,LOW);
             digitalWrite(Led_4,HIGH);
+            count = count2-4;
           }
 
           // Disminuir el contador y reiniciar a 4
@@ -134,6 +143,7 @@ void loop() {
             digitalWrite(Led_3,LOW);
             digitalWrite(Led_4,LOW);
             count2 = 4;
+            count = count2+1;
           } else {
             count2--;
           }
