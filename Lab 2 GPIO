@@ -194,3 +194,201 @@ int modo(int x) {
     return 1;
   }
 }
+
+// Universidad del Valle
+// Digital 2
+// Ana y Dayrin
+// Contador de décadas y contador binario con leds. Framework ESP-IDF
+
+// Librerías
+#include <stdio.h>
+#include <driver/gpio.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+
+// Variables globales
+#define LED_1 GPIO_NUM_23
+#define LED_2 GPIO_NUM_22
+#define LED_3 GPIO_NUM_21
+#define LED_4 GPIO_NUM_19
+#define MODO GPIO_NUM_4
+#define MAS GPIO_NUM_5
+#define MENOS GPIO_NUM_15
+uint8_t b1_state = 1;
+uint8_t last_b1_state = 1;
+uint8_t b2_state = 0;
+uint8_t last_b2_state = 0;
+uint8_t count = 1;
+uint8_t count2 = 4;
+
+// Prototipos de funciones
+int modo(int);
+void mostrarBinario(uint8_t numero);
+void delay(uint16_t ms);
+
+// Configuración de pines
+void setup(void) {
+
+    // Configurar los LEDs como salidas
+    gpio_config_t gpioConfig;
+    gpioConfig.pin_bit_mask = (1 << LED_1) | (1 << LED_2) | (1 << LED_3) | (1 << LED_4);
+    gpioConfig.mode = GPIO_MODE_OUTPUT;
+    gpioConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    gpioConfig.pull_up_en = GPIO_PULLUP_DISABLE;
+    gpioConfig.intr_type = GPIO_INTR_DISABLE;
+    gpio_config(&gpioConfig);
+
+    // Configurar los botones como entradas
+    gpio_config_t botones;
+    botones.mode = GPIO_MODE_INPUT;
+    botones.pin_bit_mask = (1 << MODO) | (1 << MAS) | (1 << MENOS);
+    gpioConfig.intr_type = GPIO_INTR_DISABLE;
+    gpio_config(&botones);
+
+    gpio_set_pull_mode(MODO,GPIO_PULLDOWN_ONLY);
+    gpio_set_pull_mode(MAS,GPIO_PULLUP_ONLY);
+    gpio_set_pull_mode(MENOS,GPIO_FLOATING);
+
+    // Inicializar LEDs en LOW
+    gpio_set_level(LED_1, 0);
+    gpio_set_level(LED_2, 0);
+    gpio_set_level(LED_3, 0);
+    gpio_set_level(LED_4, 0);
+}
+
+void app_main(void) {
+    setup();
+
+    while (1) {
+        // Leer el botón de modo
+        int m = modo(gpio_get_level(MODO));
+        
+        // Si está en modo decena
+        if (m == 0) {
+            // Leer el botón más - incrementa la cuenta
+            b1_state = gpio_get_level(MAS);
+            if (b1_state != last_b1_state) {
+                if (b1_state == 0) {
+                    // Mostrar el valor actual en los LEDs
+                    if (count == 0) {
+                        gpio_set_level(LED_1, 0);
+                        gpio_set_level(LED_2, 0);
+                        gpio_set_level(LED_3, 0);
+                        gpio_set_level(LED_4, 0);
+                        count2 = count + 4;
+                    } else if (count == 1) {
+                        gpio_set_level(LED_1, 1);
+                        gpio_set_level(LED_2, 0);
+                        gpio_set_level(LED_3, 0);
+                        gpio_set_level(LED_4, 0);
+                        count2 = count - 1;
+                    } else if (count == 2) {
+                        gpio_set_level(LED_1, 0);
+                        gpio_set_level(LED_2, 1);
+                        gpio_set_level(LED_3, 0);
+                        gpio_set_level(LED_4, 0);
+                        count2 = count - 1;
+                    } else if (count == 3) {
+                        gpio_set_level(LED_1, 0);
+                        gpio_set_level(LED_2, 0);
+                        gpio_set_level(LED_3, 1);
+                        gpio_set_level(LED_4, 0);
+                        count2 = count - 1;
+                    } else if (count == 4) {
+                        gpio_set_level(LED_1, 0);
+                        gpio_set_level(LED_2, 0);
+                        gpio_set_level(LED_3, 0);
+                        gpio_set_level(LED_4, 1);
+                        count = 0;
+                        count2 = count - 1;
+                    } else {
+                        count++;
+                    }
+                }
+                delay(200); // Esperar para evitar rebote
+                last_b1_state = b1_state;
+            }
+
+            // Leer el botón menos - disminuye la cuenta
+            b2_state = gpio_get_level(MENOS);
+            if (b2_state != last_b2_state) {
+                if (b2_state == 1) {
+                    if (count2 == 1) {
+                        gpio_set_level(LED_1, 1);
+                        gpio_set_level(LED_2, 0);
+                        gpio_set_level(LED_3, 0);
+                        gpio_set_level(LED_4, 0);
+                        count = count2 + 1;
+                    } else if (count2 == 2) {
+                        gpio_set_level(LED_1, 0);
+                        gpio_set_level(LED_2, 1);
+                        gpio_set_level(LED_3, 0);
+                        gpio_set_level(LED_4, 0);
+                        count = count2 + 1;
+                    } else if (count2 == 3) {
+                        gpio_set_level(LED_1, 0);
+                        gpio_set_level(LED_2, 0);
+                        gpio_set_level(LED_3, 1);
+                        gpio_set_level(LED_4, 0);
+                        count = count2 + 1;
+                    } else if (count2 == 4) {
+                        gpio_set_level(LED_1, 0);
+                        gpio_set_level(LED_2, 0);
+                        gpio_set_level(LED_3, 0);
+                        gpio_set_level(LED_4, 1);
+                        count = count2 - 4;
+                    }
+                    if (count2 == 0) {
+                        gpio_set_level(LED_1, 0);
+                        gpio_set_level(LED_2, 0);
+                        gpio_set_level(LED_3, 0);
+                        gpio_set_level(LED_4, 0);
+                        count2 = 4;
+                        count = count2 + 1;
+                    } else {
+                        count2--;
+                    }
+                }
+                delay(200); // Esperar para evitar rebote
+                last_b2_state = b2_state;
+            }
+        } else { // Modo binario
+            // Leer el botón más - incrementa la cuenta
+            b1_state = gpio_get_level(MAS);
+            if (b1_state != last_b1_state) {
+                if (b1_state == 0) {
+                    count = (count + 1) % 16; // Incrementa y vuelve a 0 después de 15
+                    mostrarBinario(count);
+                    delay(200); // Esperar para evitar rebote
+                }
+                last_b1_state = b1_state;
+            }
+
+            // Leer el botón menos - disminuye la cuenta
+            b2_state = gpio_get_level(MENOS);
+            if (b2_state != last_b2_state) {
+                if (b2_state == 1) {
+                    count = (count - 1) % 16; // Decrementa y vuelve a 15 después de 0
+                    mostrarBinario(count);
+                    delay(200); // Esperar para evitar rebote
+                }
+                last_b2_state = b2_state;
+            }
+        }
+    }
+}
+
+void mostrarBinario(uint8_t numero) {
+    gpio_set_level(LED_1, numero & 0x01);
+    gpio_set_level(LED_2, (numero >> 1) & 0x01);
+    gpio_set_level(LED_3, (numero >> 2) & 0x01);
+    gpio_set_level(LED_4, (numero >> 3) & 0x01);
+}
+
+int modo(int x) {
+    return (x == 0) ? 0 : 1;
+}
+
+void delay(uint16_t ms) {
+    vTaskDelay(ms/ portTICK_PERIOD_MS);
+}
